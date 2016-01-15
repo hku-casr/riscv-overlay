@@ -4,7 +4,7 @@ This soft processor is designed to be tightly-coupled with a custom coarse-grain
 
 RISC-V RV32I is chosen as the instruction set for its openness and portability, and the soft processor is designed as a 4-stage pipeline to minimize the resource consumption when implemented on FPGAs.
 
-The processor is generically implemented so as to promote design portability and compatibility across different FPGA platforms, which include Spartan-3 to Virtex-7 and Cyclone IV to V.
+The processor is generically implemented so as to promote design portability and compatibility across different FPGA platforms. Current implemenations support Spartan-3 to Virtex-7 and Cyclone IV to V.
 
 
 To use this soft processor, instantiate a new project in ISE or Quartus II and put all the files in there. Ok, now, you are basically done.
