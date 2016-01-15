@@ -11,7 +11,7 @@ To use this soft processor, instantiate a new project in ISE or Quartus II and p
 
 If you want to implement the design onto Xilinx platforms that are order than Virtex5, please uncomment the macro LEG_BOARD in macro.para.v.
 
-If you want to put the soft processor on Altrea FPGA, comment macro XILINX and LEG_BOARD in macro.para.v.
+If you want to put the soft processor on Altrea FPGA, comment macros XILINX and LEG_BOARD in macro.para.v.
 
 Note that the IMEM and DMEM are implemented as block RAM. You can change their size by modifying macro: IMEMM_ADDR_BIT_NUM, IMEMM_DEPTH and DMEMM_ADDR_BIT_NUM, DMEMM_DEPTH respectively.
 
