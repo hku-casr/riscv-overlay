@@ -7,7 +7,7 @@ RISC-V RV32I is chosen as the instruction set for its openness and portability, 
 The processor is generically implemented so as to promote design portability and compatibility across different FPGA platforms. Current implemenations support Spartan-3 to Virtex-7 and Cyclone IV to V.
 
 
-To use this soft processor, instantiate a new project in ISE or Quartus II and put all the files in the basic directory in there. Ok, now, you are basically done.
+To use this soft processor, instantiate a new project in ISE or Quartus II and put all the files in the "basic" directory in there. Ok, now, you are basically done.
 
 If you want to implement the design onto Xilinx platforms that are order than Virtex5, please uncomment the macro LEG_BOARD in macro.para.v.
 
