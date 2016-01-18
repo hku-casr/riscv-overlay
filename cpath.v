@@ -58,6 +58,11 @@ module cpath(
 		CtoD_mem_typ = `MT_X;
 		CtoD_csr_cmd = `CSR_N;
         case(opcode)
+				`OPCODE_BAA_RPA: begin
+					 case (funct3)
+						`assignSignalsInst(`FUNCTIII_BAA, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_RC, 1, 0, `M_X, `MT_X, `CSR_N) end
+					 endcase
+				end
             `OPCODE_LD: begin
                 case (funct3)
            //funct7, branch, op1_sel, op2_sel, alu_sel, wb_sel, rf_wen(wb_en), mem_val(dmem_en), mem_fcn(rd, wr), mem_type(b, w. h), csr

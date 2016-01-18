@@ -13,20 +13,12 @@ module Top(
     input [`RV_BIT_NUM-1:0] imem_wr_addr,
 	input [`RV_BIT_NUM-1:0] imem_wr_data,
 	input imem_wr_valid,
-    
-    output [`MEM_FCN_BIT_NUM-1:0] dmem_fcn,
-    output [`RV_BIT_NUM-1:0] dmem_addr,
-    output dmem_valid,
-    input dmem_resp_valid,
-    output [`RV_BIT_NUM-1:0] dmem_data_i,
-    input [`RV_BIT_NUM-1:0] dmem_data_o,
-	
-		
+    	
 	input [`RV_BIT_NUM-1:0] dmem_wr_addr,
 	input [`RV_BIT_NUM-1:0] dmem_wr_data,
-	input dmem_wr_valid,
+	input dmem_wr_valid
 	
-	output [`RV_BIT_NUM-1:0] DtoC_dec_inst,
+   , output [`RV_BIT_NUM-1:0] DtoC_dec_inst,
     output DtoC_exe_br_eq,
     output DtoC_exe_br_lt,
     output DtoC_exe_br_ltu,
@@ -57,12 +49,12 @@ module Top(
     wire [`MEM_TYP_BIT_NUM-1:0] CtoD_mem_typ;   
     wire [`CSR_CMD_BIT_NUM-1:0] CtoD_csr_cmd;
     
-/*    wire [`RV_BIT_NUM-1:0] DtoC_dec_inst;
-    wire DtoC_exe_br_eq;
-    wire DtoC_exe_br_lt;
-    wire DtoC_exe_br_ltu;
-    wire [`BR_TYPE_BIT_NUM-1:0] DtoC_exe_br_type;
-    wire DtoC_exe_ctrl_dmem_val;*/
+    //wire [`RV_BIT_NUM-1:0] DtoC_dec_inst;
+    //wire DtoC_exe_br_eq;
+    //wire DtoC_exe_br_lt;
+    //wire DtoC_exe_br_ltu;
+    //wire [`BR_TYPE_BIT_NUM-1:0] DtoC_exe_br_type;
+    //wire DtoC_exe_ctrl_dmem_val;
     
 	dpath dpath(
         .clk(clk),
@@ -102,22 +94,14 @@ module Top(
         .DtoC_exe_br_type(DtoC_exe_br_type),
         .DtoC_exe_ctrl_dmem_val(DtoC_exe_ctrl_dmem_val),
         
-        .imem_wr_addr(imem_wr_addr),
-        .imem_wr_data(imem_wr_data),
-        .imem_wr_valid(imem_wr_valid),
-		
-		.dmem_wr_addr(dmem_wr_addr),
-		.dmem_wr_data(dmem_wr_data),
-		.dmem_wr_valid(dmem_wr_valid)
-		/*,
-        
-        
-        .dmem_fcn(dmem_fcn),
-        .dmem_addr(dmem_addr),
-        .dmem_valid(dmem_valid),
-        .dmem_resp_valid(dmem_resp_valid),
-        .dmem_data_i(dmem_data_i),
-        .dmem_data_o(dmem_data_o) */
+			.imem_wr_addr(imem_wr_addr),
+			.imem_wr_data(imem_wr_data),
+			.imem_wr_valid(imem_wr_valid),
+
+			.dmem_wr_addr(dmem_wr_addr),
+			.dmem_wr_data(dmem_wr_data),
+			.dmem_wr_valid(dmem_wr_valid)
+
     );
 	
     cpath cpath(

@@ -244,7 +244,11 @@ module dpath #(
     
     wire [RV_BIT_NUM-1:0] exe_wbdata;
     
-    regfile regfile(
+	 `ifdef XILINX
+		regfile_xilinx regfile(
+	 `else
+		regfile_altera regfile(
+	 `endif
         .clk(clk),
         .rst_n(rst_n),
 
@@ -577,17 +581,6 @@ module dpath #(
                 end
             end
             
-            /*`MT_BU: begin
-                if (dmem_addr[1:0] == 2'b00)  begin                     
-                    exe_mem_data_o = {24'd0, dmem_data_o[0 +: `RV_BIT_NUM_DIVIV]};                       
-                end if (dmem_addr[1:0] == 2'b01)  begin                        
-                    exe_mem_data_o = {24'd0, dmem_data_o[`RV_BIT_NUM_DIVIV +: `RV_BIT_NUM_DIVIV]};                        
-                end if (dmem_addr[1:0] == 2'b10) begin                        
-                    exe_mem_data_o = {24'd0, dmem_data_o[`RV_BIT_NUM_DIVIV*2 +: `RV_BIT_NUM_DIVIV]};                       
-                end if (dmem_addr[1:0] == 2'b11)  begin    
-                    exe_mem_data_o = {24'd0, dmem_data_o[`RV_BIT_NUM_DIVIV*3 +: `RV_BIT_NUM_DIVIV]};
-                end 
-            end*/
             
             `MT_H: begin
                 if (dmem_addr[1] == 1'b0)  begin 
@@ -612,13 +605,6 @@ module dpath #(
                 end
             end
             
-            /*`MT_HU: begin
-                if (dmem_addr[1] == 1'b0)  begin 
-                    exe_mem_data_o = {16'd0, dmem_data_o[0 +: `RV_BIT_NUM_DIVIV*2]};  
-                end if (dmem_addr[1] == 1'b1)  begin 
-                    exe_mem_data_o = {16'd0, dmem_data_o[`RV_BIT_NUM_DIVIV*2 +: `RV_BIT_NUM_DIVIV*2]};  
-                end
-            end*/
             
             default: begin
                 dmem_keep = 0;
@@ -704,15 +690,15 @@ module dpath #(
         .clka(clk), // input clka
         .rsta(rst), // input rsta
  
-        //.wea(fake_dmem_keep_tb), // input [3 : 0] wea
-        //.addra(dmem_addr_tb[`DMEMM_ADDR_BIT_NUM-1+2:2]), // input [16 : 0] addra
+        .wea(fake_dmem_keep_tb), // input [3 : 0] wea
+        .addra(dmem_addr_tb[`DMEMM_ADDR_BIT_NUM-1+2:2]), // input [16 : 0] addra
         
-        //.dina(dmem_data_tb), // input [31 : 0] dina
+        .dina(dmem_data_tb), // input [31 : 0] dina
  
-        .wea(fake_dmem_keep), // input [3 : 0] wea
-        .addra(dmem_addr[`DMEMM_ADDR_BIT_NUM-1+2:2]), // input [11 : 0] addra
+        //.wea(fake_dmem_keep), // input [3 : 0] wea
+        //.addra(dmem_addr[`DMEMM_ADDR_BIT_NUM-1+2:2]), // input [11 : 0] addra
         
-        .dina(dmem_data_i), // input [31 : 0] dina
+        //.dina(dmem_data_i), // input [31 : 0] dina
         .douta(dmem_data_o) // output [31 : 0] douta
     );
     
