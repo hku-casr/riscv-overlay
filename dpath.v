@@ -58,17 +58,20 @@ module dpath #(
     output DtoC_exe_br_ltu,
     output [`BR_TYPE_BIT_NUM-1:0] DtoC_exe_br_type,
     output DtoC_exe_ctrl_dmem_val,
+     
+    output DtoC_exe_rc_done,
+    input CtoD_exe_rc_cmd,
     
-	//input [RV_BIT_NUM-1:0] rf_rs1_data,
-	
-	//input [RV_BIT_NUM-1:0] rf_rs2_data
-	input [`RV_BIT_NUM-1:0] imem_wr_addr,
-	input [`RV_BIT_NUM-1:0] imem_wr_data,
-	input imem_wr_valid,
-	
-	input [`RV_BIT_NUM-1:0] dmem_wr_addr,
-	input [`RV_BIT_NUM-1:0] dmem_wr_data,
-	input dmem_wr_valid
+    //input [RV_BIT_NUM-1:0] rf_rs1_data,
+    
+    //input [RV_BIT_NUM-1:0] rf_rs2_data
+    input [`RV_BIT_NUM-1:0] imem_wr_addr,
+    input [`RV_BIT_NUM-1:0] imem_wr_data,
+    input imem_wr_valid,
+    
+    input [`RV_BIT_NUM-1:0] dmem_wr_addr,
+    input [`RV_BIT_NUM-1:0] dmem_wr_data,
+    input dmem_wr_valid
     
     );
     //reg in if
@@ -149,8 +152,8 @@ module dpath #(
         if (!CtoD_dec_stall && !CtoD_full_stall) begin
             imem_addr = ((imem_wr_valid == 1'b1) ? imem_wr_addr : if_pc_next);
         end else begin
-			imem_addr = if_reg_pc;
-		end
+            imem_addr = if_reg_pc;
+        end
     end
     
     imem imem(
@@ -191,8 +194,8 @@ module dpath #(
                 if_inst = imem_data_o;
             end
         end else begin
-			if_inst = dec_reg_inst;
-		end
+            if_inst = dec_reg_inst;
+        end
     end   
      
     //decode stage
@@ -244,11 +247,11 @@ module dpath #(
     
     wire [RV_BIT_NUM-1:0] exe_wbdata;
     
-	 `ifdef XILINX
-		regfile_xilinx regfile(
-	 `else
-		regfile_altera regfile(
-	 `endif
+     `ifdef XILINX
+        regfile_xilinx regfile(
+     `else
+        regfile_altera regfile(
+     `endif
         .clk(clk),
         .rst_n(rst_n),
 
@@ -294,8 +297,8 @@ module dpath #(
         //end else if (CtoD_sel_dec_op1 == `OPI_DEFAULT) begin
             //op1_sel = `OPI_MUX_DEFAULT;
         end else begin
-            op1_sel = `OPI_MUX_DEFAULT;	
-		end
+            op1_sel = `OPI_MUX_DEFAULT;    
+        end
     end
     
     reg [`OPII_SEL-1:0] op2_sel;
@@ -317,8 +320,8 @@ module dpath #(
         //end else if (CtoD_sel_dec_op2_addr == `OPII_DEFAULT) begin
             //op2_sel = `OPII_MUX_DEFAULT;           
         end else begin
-			op2_sel = `OPII_MUX_DEFAULT;  
-		end
+            op2_sel = `OPII_MUX_DEFAULT;  
+        end
     end
 
     reg [`RSII_SEL-1:0] rs2_sel;
@@ -482,8 +485,8 @@ module dpath #(
                 dec_end_mem_addr = 0;
                 
                 dec_end_ctrl_mem_fcn = `M_X;
-				dec_end_ctrl_mem_typ = exe_reg_ctrl_mem_typ;
-				dec_end_dec_rs2_data = exe_reg_rs2_data;
+                dec_end_ctrl_mem_typ = exe_reg_ctrl_mem_typ;
+                dec_end_dec_rs2_data = exe_reg_rs2_data;
                 
             end else begin
                 dec_end_ctrl_mem_val = CtoD_mem_val;
@@ -499,16 +502,16 @@ module dpath #(
             dec_end_mem_addr = 0;
             
             dec_end_ctrl_mem_fcn = `M_X;
-			dec_end_ctrl_mem_typ = exe_reg_ctrl_mem_typ;
-			dec_end_dec_rs2_data = exe_reg_rs2_data;
-			
+            dec_end_ctrl_mem_typ = exe_reg_ctrl_mem_typ;
+            dec_end_dec_rs2_data = exe_reg_rs2_data;
+            
         end else begin
-			dec_end_mem_addr = exe_reg_mem_addr;
-			dec_end_ctrl_mem_val = CtoD_mem_val;
-			dec_end_ctrl_mem_fcn = exe_reg_ctrl_mem_fcn;
-			dec_end_ctrl_mem_typ = exe_reg_ctrl_mem_typ;
-			dec_end_dec_rs2_data = exe_reg_rs2_data;
-		end
+            dec_end_mem_addr = exe_reg_mem_addr;
+            dec_end_ctrl_mem_val = CtoD_mem_val;
+            dec_end_ctrl_mem_fcn = exe_reg_ctrl_mem_fcn;
+            dec_end_ctrl_mem_typ = exe_reg_ctrl_mem_typ;
+            dec_end_dec_rs2_data = exe_reg_rs2_data;
+        end
     end
      
      
@@ -530,8 +533,8 @@ module dpath #(
     reg [`RV_BIT_NUM_DIVIV_NUM-1:0] dmem_keep;
 
     always@(*) begin
-		dmem_keep = 0;
-		//dmem_data_i = exe_reg_rs2_data;
+        dmem_keep = 0;
+        //dmem_data_i = exe_reg_rs2_data;
         case (dmem_typ)
             `MT_W: begin
                 dmem_keep = `RV_BIT_NUM_DIVIV_NUM'b1111;
@@ -543,38 +546,38 @@ module dpath #(
                 if (dmem_addr[1:0] == 2'b00)  begin 
                     dmem_keep = `RV_BIT_NUM_DIVIV_NUM'b0001;
                     //dmem_data_i[0 +: `RV_BIT_NUM_DIVIV] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV];
-					`ifdef LEG_BOARD
-						dmem_data_i = {24'd0, dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV]};
-					`else
-						dmem_data_i[0 +: `RV_BIT_NUM_DIVIV] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV];
-					`endif                     
+                    `ifdef LEG_BOARD
+                        dmem_data_i = {24'd0, dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV]};
+                    `else
+                        dmem_data_i[0 +: `RV_BIT_NUM_DIVIV] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV];
+                    `endif                     
                     //exe_mem_data_o = {{24{dmem_data_o[`RV_BIT_NUM_DIVIV-1]}}, dmem_data_o[0 +: `RV_BIT_NUM_DIVIV]};
                     
                 end if (dmem_addr[1:0] == 2'b01)  begin
                     dmem_keep = `RV_BIT_NUM_DIVIV_NUM'b0010;
-					`ifdef LEG_BOARD
-						dmem_data_i = {16'd0, dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV], 8'd0};
-					`else
-						dmem_data_i[`RV_BIT_NUM_DIVIV +: `RV_BIT_NUM_DIVIV] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV];
-					`endif                        
+                    `ifdef LEG_BOARD
+                        dmem_data_i = {16'd0, dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV], 8'd0};
+                    `else
+                        dmem_data_i[`RV_BIT_NUM_DIVIV +: `RV_BIT_NUM_DIVIV] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV];
+                    `endif                        
                     //exe_mem_data_o = {{24{dmem_data_o[`RV_BIT_NUM_DIVIV*2-1]}}, dmem_data_o[`RV_BIT_NUM_DIVIV +: `RV_BIT_NUM_DIVIV]};
                     
                 end if (dmem_addr[1:0] == 2'b10) begin
                     dmem_keep = `RV_BIT_NUM_DIVIV_NUM'b0100;
-					`ifdef LEG_BOARD
-						dmem_data_i = {8'd0, dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV], 16'd0};
-					`else
-						dmem_data_i[`RV_BIT_NUM_DIVIV*2 +: `RV_BIT_NUM_DIVIV] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV];
-					`endif                    
+                    `ifdef LEG_BOARD
+                        dmem_data_i = {8'd0, dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV], 16'd0};
+                    `else
+                        dmem_data_i[`RV_BIT_NUM_DIVIV*2 +: `RV_BIT_NUM_DIVIV] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV];
+                    `endif                    
                     //exe_mem_data_o = {{24{dmem_data_o[`RV_BIT_NUM_DIVIV*3-1]}}, dmem_data_o[`RV_BIT_NUM_DIVIV*2 +: `RV_BIT_NUM_DIVIV]};
                     
                 end if (dmem_addr[1:0] == 2'b11)  begin
                     dmem_keep = `RV_BIT_NUM_DIVIV_NUM'b1000;
-					`ifdef LEG_BOARD
-						dmem_data_i = {dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV], 24'd0};
-					`else
-						dmem_data_i[`RV_BIT_NUM_DIVIV*3 +: `RV_BIT_NUM_DIVIV] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV];
-					`endif
+                    `ifdef LEG_BOARD
+                        dmem_data_i = {dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV], 24'd0};
+                    `else
+                        dmem_data_i[`RV_BIT_NUM_DIVIV*3 +: `RV_BIT_NUM_DIVIV] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV];
+                    `endif
                    
                     
                     //exe_mem_data_o = {{24{dmem_data_o[`RV_BIT_NUM_DIVIV*4-1]}}, dmem_data_o[`RV_BIT_NUM_DIVIV*3 +: `RV_BIT_NUM_DIVIV]};
@@ -585,21 +588,21 @@ module dpath #(
             `MT_H: begin
                 if (dmem_addr[1] == 1'b0)  begin 
                     dmem_keep = `RV_BIT_NUM_DIVIV_NUM'b0011;
-					`ifdef LEG_BOARD
-						dmem_data_i = {16'd0, dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV*2]};
-					`else
-						dmem_data_i[0 +: `RV_BIT_NUM_DIVIV*2] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV*2];
-					`endif
+                    `ifdef LEG_BOARD
+                        dmem_data_i = {16'd0, dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV*2]};
+                    `else
+                        dmem_data_i[0 +: `RV_BIT_NUM_DIVIV*2] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV*2];
+                    `endif
                     //exe_mem_data_o = {{16{dmem_data_o[`RV_BIT_NUM_DIVIV*2-1]}}, dmem_data_o[0 +: `RV_BIT_NUM_DIVIV*2]};
                     
                 end if (dmem_addr[1] == 1'b1)  begin
                     dmem_keep = `RV_BIT_NUM_DIVIV_NUM'b1100;
                     //dmem_data_i[`RV_BIT_NUM_DIVIV*2 +: `RV_BIT_NUM_DIVIV*2] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV*2];
-					`ifdef LEG_BOARD
-						dmem_data_i = {dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV*2], 16'd0};
-					`else
-						dmem_data_i[`RV_BIT_NUM_DIVIV*2 +: `RV_BIT_NUM_DIVIV*2] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV*2];
-					`endif
+                    `ifdef LEG_BOARD
+                        dmem_data_i = {dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV*2], 16'd0};
+                    `else
+                        dmem_data_i[`RV_BIT_NUM_DIVIV*2 +: `RV_BIT_NUM_DIVIV*2] = dec_end_dec_rs2_data[0 +: `RV_BIT_NUM_DIVIV*2];
+                    `endif
                     //exe_mem_data_o = {{16{dmem_data_o[`RV_BIT_NUM_DIVIV*4-1]}}, dmem_data_o[`RV_BIT_NUM_DIVIV*2 +: `RV_BIT_NUM_DIVIV*2]};
                     
                 end
@@ -616,7 +619,7 @@ module dpath #(
 
 
     always@(*) begin
-		exe_mem_data_o = dmem_data_o;
+        exe_mem_data_o = dmem_data_o;
         case (exe_reg_ctrl_mem_typ)
             `MT_W: begin
                 exe_mem_data_o = dmem_data_o;
@@ -673,17 +676,30 @@ module dpath #(
         endcase
     end
 
-	wire [`RV_BIT_NUM-1:0] dmem_data_tb;
-	wire [`RV_BIT_NUM-1:0] dmem_addr_tb;
-	wire [3:0] fake_dmem_keep_tb;
-	wire [3:0] fake_dmem_keep;
-	
-	assign dmem_data_tb = (dmem_wr_valid == 1)? dmem_wr_data: dmem_data_i;
-	assign dmem_addr_tb = (dmem_wr_valid == 1)? dmem_wr_addr: dmem_addr;
-	assign fake_dmem_keep_tb = (dmem_wr_valid == 1)? 4'b1111: fake_dmem_keep;
+    //extra signals and muxes for aux arch
+    wire [`RV_BIT_NUM_DIVIV_NUM-1:0] aux_mem_keep;
+    wire [`RV_BIT_NUM-1:0] aux_mem_datai;
+    wire [`RV_BIT_NUM-1:0] aux_mem_addr;    
+    
+    wire [`RV_BIT_NUM-1:0] aux_mem_datao;
+    
+    
+
+    wire [`RV_BIT_NUM-1:0] dmem_data_tb;
+    wire [`RV_BIT_NUM-1:0] dmem_addr_tb;
+    wire [3:0] fake_dmem_keep_tb;
+    wire [3:0] fake_dmem_keep;
+    
+    assign dmem_data_tb = (dmem_wr_valid == 1)? dmem_wr_data: 
+                (CtoD_exe_rc_cmd == `RC_1)? aux_mem_datai: dmem_data_i;
+    assign dmem_addr_tb = (dmem_wr_valid == 1)? dmem_wr_addr: 
+                (CtoD_exe_rc_cmd == `RC_1)? aux_mem_addr: dmem_addr;
+    assign fake_dmem_keep_tb = (dmem_wr_valid == 1)? 4'b1111: 
+                (CtoD_exe_rc_cmd == `RC_1)? aux_mem_keep: fake_dmem_keep;
     
     
     assign fake_dmem_keep = ((dmem_valid == 1 && dmem_fcn == `M_XWR)? dmem_keep : 4'b0);
+    
     
     //fake dmem    
     dmem dmem (
@@ -702,7 +718,7 @@ module dpath #(
         .douta(dmem_data_o) // output [31 : 0] douta
     );
     
- 
+    assign aux_mem_datao = dmem_data_o;
  
     FourToOneMux Mux4_wb (
         .sel(exe_reg_ctrl_wb_sel),
@@ -756,5 +772,21 @@ module dpath #(
             dmem_data_o <= dmem_data_o + 32'd1;
         end
     end*/
+    
+    auxiliary_arc aux1(
+        .clk(clk),
+        .rst(rst),
+        .rst_n(rst_n),
+        
+        .aux_mem_keep(aux_mem_keep),
+        .aux_mem_datai(aux_mem_datai),
+        .aux_mem_addr(aux_mem_addr),  
+    
+        .aux_mem_datao(aux_mem_datao),
+        
+        .aux_start_addr(exe_reg_mem_addr),
+        .aux_en(CtoD_exe_rc_cmd),
+        .aux_done(DtoC_exe_rc_done)
+    );
     
  endmodule

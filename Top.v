@@ -48,6 +48,9 @@ module Top(
     wire [`MEM_FCN_BIT_NUM-1:0] CtoD_mem_fcn;
     wire [`MEM_TYP_BIT_NUM-1:0] CtoD_mem_typ;   
     wire [`CSR_CMD_BIT_NUM-1:0] CtoD_csr_cmd;
+	 
+	wire DtoC_exe_rc_done;
+	wire CtoD_exe_rc_cmd;
     
     //wire [`RV_BIT_NUM-1:0] DtoC_dec_inst;
     //wire DtoC_exe_br_eq;
@@ -93,6 +96,9 @@ module Top(
         .DtoC_exe_br_ltu(DtoC_exe_br_ltu),
         .DtoC_exe_br_type(DtoC_exe_br_type),
         .DtoC_exe_ctrl_dmem_val(DtoC_exe_ctrl_dmem_val),
+		  
+		  .DtoC_exe_rc_done(DtoC_exe_rc_done),
+		  .CtoD_exe_rc_cmd(CtoD_exe_rc_cmd),
         
 			.imem_wr_addr(imem_wr_addr),
 			.imem_wr_data(imem_wr_data),
@@ -135,7 +141,10 @@ module Top(
     .DtoC_exe_br_lt(DtoC_exe_br_lt),
     .DtoC_exe_br_ltu(DtoC_exe_br_ltu),
     .DtoC_exe_br_type(DtoC_exe_br_type),
-    .DtoC_exe_ctrl_dmem_val(DtoC_exe_ctrl_dmem_val)
+    .DtoC_exe_ctrl_dmem_val(DtoC_exe_ctrl_dmem_val),
+	 
+	.DtoC_exe_rc_done(DtoC_exe_rc_done),
+	.CtoD_exe_rc_cmd(CtoD_exe_rc_cmd)
     
    // .dmem_resp_valid(dmem_resp_valid)
     );	

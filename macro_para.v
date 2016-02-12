@@ -51,7 +51,7 @@
 `define OPII_SEL    3
 `define RSII_SEL    2
 `define ADDR_SEL    2
-`define WB_SEL     2
+`define WB_SEL     3
 
 //OP1
 `define OPI_IMZ         `OPI_SEL'd0
@@ -149,7 +149,7 @@
 `define WB_PC          `WB_SEL'd1
 `define WB_MEM          `WB_SEL'd2
 `define WB_CSR          `WB_SEL'd3
-
+`define WB_RC          `WB_SEL'd4
 
 
 
@@ -181,7 +181,7 @@
 
 `define OPCODE_BAA_RPA	`SHIFT_BIT_NUM'b0001011
 `define FUNCTIII_BAA     `FUNCTIII_BIT_NUM'b000
-
+`define FUNCTIII_RPA     `FUNCTIII_BIT_NUM'b001
 
 
 //funct3 for OPCODE_LD
@@ -238,8 +238,11 @@
 `define SHIFT_SRLI     `SHIFT_BIT_NUM'b000000
 `define SHIFT_SRAI     `SHIFT_BIT_NUM'b010000
 
+//RC
+`define RC_0	0
+`define RC_1	1
 
-`define assignSignalsInst(inst, br_type, opI_sel, opII_addr_sel, alu_fun, wb_sel, rf_wen, mem_val, mem_fcn, mem_typ, csr_cmd) \
+`define assignSignalsInst(inst, br_type, opI_sel, opII_addr_sel, alu_fun, wb_sel, rf_wen, mem_val, mem_fcn, mem_typ, csr_cmd, m_rc_cmd) \
                         inst: begin \
                         CtoD_br_type = br_type; \
                         CtoD_sel_dec_op1 = opI_sel; \
@@ -250,9 +253,10 @@
                         CtoD_mem_val = mem_val;//this is to enable dmem \
                         CtoD_mem_fcn = mem_fcn;//this is read_en or write_en signals to dmem \
                         CtoD_mem_typ = mem_typ;//determine byte, word \
-                        CtoD_csr_cmd = csr_cmd; 
+                        CtoD_csr_cmd = csr_cmd; \
+								rc_cmd = m_rc_cmd;
 
-`define assignSignals( br_type, opI_sel, opII_addr_sel, alu_fun, wb_sel, rf_wen, mem_val, mem_fcn, mem_typ, csr_cmd) \
+`define assignSignals( br_type, opI_sel, opII_addr_sel, alu_fun, wb_sel, rf_wen, mem_val, mem_fcn, mem_typ, csr_cmd, m_rc_cmd) \
                         CtoD_br_type = br_type; \
                         CtoD_sel_dec_op1 = opI_sel; \
                         CtoD_sel_dec_op2_addr = opII_addr_sel; \
@@ -262,7 +266,8 @@
                         CtoD_mem_val = mem_val;//this is to enable dmem \
                         CtoD_mem_fcn = mem_fcn;//this is read_en or write_en signals to dmem \
                         CtoD_mem_typ = mem_typ;//determine byte, word \
-                        CtoD_csr_cmd = csr_cmd;
+                        CtoD_csr_cmd = csr_cmd; \
+								rc_cmd = m_rc_cmd;
 
 
 

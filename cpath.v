@@ -33,7 +33,10 @@ module cpath(
     input DtoC_exe_br_lt,
     input DtoC_exe_br_ltu,
     input [`BR_TYPE_BIT_NUM-1:0] DtoC_exe_br_type,
-    input DtoC_exe_ctrl_dmem_val
+    input DtoC_exe_ctrl_dmem_val,
+     
+     input DtoC_exe_rc_done,
+     output reg CtoD_exe_rc_cmd
     );
     
     wire [`OPCODE_BIT_NUM-1:0] opcode;
@@ -45,33 +48,37 @@ module cpath(
     assign funct3 = DtoC_dec_inst[12 +: `FUNCTIII_BIT_NUM];
     assign funct7 = DtoC_dec_inst[25 +: `FUNCTVII_BIT_NUM];
     assign shift6 = DtoC_dec_inst[26 +: `SHIFT_BIT_NUM];
+     
+     reg rc_cmd;
     
     always@(*) begin
-		CtoD_br_type = `BR_N;
-		CtoD_sel_dec_op1 = `OPI_DEFAULT;
-		CtoD_sel_dec_op2_addr = `OPII_DEFAULT;
-		CtoD_alu_fun = `ALU_X;
-		CtoD_wb_sel = `WB_X;
-		CtoD_rf_wen = 0;
-		CtoD_mem_val = 0;
-		CtoD_mem_fcn = `M_X;
-		CtoD_mem_typ = `MT_X;
-		CtoD_csr_cmd = `CSR_N;
+        CtoD_br_type = `BR_N;
+        CtoD_sel_dec_op1 = `OPI_DEFAULT;
+        CtoD_sel_dec_op2_addr = `OPII_DEFAULT;
+        CtoD_alu_fun = `ALU_X;
+        CtoD_wb_sel = `WB_X;
+        CtoD_rf_wen = 0;
+        CtoD_mem_val = 0;
+        CtoD_mem_fcn = `M_X;
+        CtoD_mem_typ = `MT_X;
+        CtoD_csr_cmd = `CSR_N;
+        rc_cmd = `RC_0;
         case(opcode)
-				`OPCODE_BAA_RPA: begin
-					 case (funct3)
-						`assignSignalsInst(`FUNCTIII_BAA, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_RC, 1, 0, `M_X, `MT_X, `CSR_N) end
-					 endcase
-				end
+                `OPCODE_BAA_RPA: begin
+                     case (funct3)
+                        `assignSignalsInst(`FUNCTIII_BAA, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_RC, 0, 0, `M_X, `MT_X, `CSR_N, `RC_1) end
+                        `assignSignalsInst(`FUNCTIII_RPA, `BR_JR, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N, `RC_0) end    
+                     endcase
+                end
             `OPCODE_LD: begin
                 case (funct3)
            //funct7, branch, op1_sel, op2_sel, alu_sel, wb_sel, rf_wen(wb_en), mem_val(dmem_en), mem_fcn(rd, wr), mem_type(b, w. h), csr
-                    `assignSignalsInst(`FUNCTIII_LB, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_B, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_LH, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_H, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_LW, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_W, `CSR_N) end
+                    `assignSignalsInst(`FUNCTIII_LB, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_B, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_LH, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_H, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_LW, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_W, `CSR_N, `RC_0) end
                     
-                    `assignSignalsInst(`FUNCTIII_LBU, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_BU, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_LHU, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_HU, `CSR_N) end
+                    `assignSignalsInst(`FUNCTIII_LBU, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_BU, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_LHU, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_MEM, 1, 1, `M_XRD, `MT_HU, `CSR_N, `RC_0) end
 
 /*                    `FUNCTIII_LB: begin
                         CtoD_br_type = `BR_N;
@@ -89,35 +96,35 @@ module cpath(
             
             `OPCODE_ST: begin
                 case (funct3)
-                    `assignSignalsInst(`FUNCTIII_SB, `BR_N, `OPI_DEFAULT, `OPII_IMM_STYPE, `ALU_X, `WB_X, 0, 1, `M_XWR, `MT_B, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_SH, `BR_N, `OPI_DEFAULT, `OPII_IMM_STYPE, `ALU_X, `WB_X, 0, 1, `M_XWR, `MT_H, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_SW, `BR_N, `OPI_DEFAULT, `OPII_IMM_STYPE, `ALU_X, `WB_X, 0, 1, `M_XWR, `MT_W, `CSR_N) end
+                    `assignSignalsInst(`FUNCTIII_SB, `BR_N, `OPI_DEFAULT, `OPII_IMM_STYPE, `ALU_X, `WB_X, 0, 1, `M_XWR, `MT_B, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_SH, `BR_N, `OPI_DEFAULT, `OPII_IMM_STYPE, `ALU_X, `WB_X, 0, 1, `M_XWR, `MT_H, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_SW, `BR_N, `OPI_DEFAULT, `OPII_IMM_STYPE, `ALU_X, `WB_X, 0, 1, `M_XWR, `MT_W, `CSR_N, `RC_0) end
                 endcase
             end
             //not_tested
             `OPCODE_AUIPC: begin
-                `assignSignals(`BR_N, `OPI_PC, `OPII_IMM_UTYPE, `ALU_ADD, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N)
+                `assignSignals(`BR_N, `OPI_PC, `OPII_IMM_UTYPE, `ALU_ADD, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0)
              end
              //not_tested
             `OPCODE_LUI: begin
-                `assignSignals(`BR_N, `OPI_DEFAULT, `OPII_IMM_UTYPE, `ALU_COPY_2, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N)
+                `assignSignals(`BR_N, `OPI_DEFAULT, `OPII_IMM_UTYPE, `ALU_COPY_2, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0)
             end
             
             `OPCODE_ADDI_ANDI_ORI_XORI_SLTI_SLTIU_SLLI_SRAI_SRLI: begin
                     case (funct3)
                         `FUNCTIII_SRAI_SRLI:
                             case (shift6)
-                                 `assignSignalsInst(`SHIFT_SRLI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SRL, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                                 `assignSignalsInst(`SHIFT_SRAI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SRA, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
+                                 `assignSignalsInst(`SHIFT_SRLI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SRL, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                                 `assignSignalsInst(`SHIFT_SRAI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SRA, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
                             endcase
                             
-                            `assignSignalsInst(`FUNCTIII_ADDI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_ADD, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                            `assignSignalsInst(`FUNCTIII_ANDI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_AND, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                            `assignSignalsInst(`FUNCTIII_ORI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_OR, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                            `assignSignalsInst(`FUNCTIII_XORI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_XOR, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                            `assignSignalsInst(`FUNCTIII_SLTI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SLT, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                            `assignSignalsInst(`FUNCTIII_SLTIU, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SLTU, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                            `assignSignalsInst(`FUNCTIII_SLLI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SLL, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
+                            `assignSignalsInst(`FUNCTIII_ADDI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_ADD, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                            `assignSignalsInst(`FUNCTIII_ANDI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_AND, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                            `assignSignalsInst(`FUNCTIII_ORI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_OR, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                            `assignSignalsInst(`FUNCTIII_XORI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_XOR, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                            `assignSignalsInst(`FUNCTIII_SLTI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SLT, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                            `assignSignalsInst(`FUNCTIII_SLTIU, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SLTU, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                            `assignSignalsInst(`FUNCTIII_SLLI, `BR_N, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_SLL, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
 
                     endcase
             end
@@ -126,47 +133,47 @@ module cpath(
                 case (funct3)
                     `FUNCTIII_ADD_SUB: begin
                         case (funct7)
-                            `assignSignalsInst(`FUNCTVII_ADD, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_ADD, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                            `assignSignalsInst(`FUNCTVII_SUB, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SUB, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
+                            `assignSignalsInst(`FUNCTVII_ADD, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_ADD, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                            `assignSignalsInst(`FUNCTVII_SUB, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SUB, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
                         endcase
                     end
                     
                     `FUNCTIII_SRA_SRL: begin
                         case (funct7)
-                            `assignSignalsInst(`FUNCTVII_SRA, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SRA, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                            `assignSignalsInst(`FUNCTVII_SRL, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SRL, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
+                            `assignSignalsInst(`FUNCTVII_SRA, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SRA, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                            `assignSignalsInst(`FUNCTVII_SRL, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SRL, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
                         endcase
                     end    
-                    `assignSignalsInst(`FUNCTIII_SLL, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SLL, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_SLT, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SLT, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_SLTU, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SLTU, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_AND, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_AND, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_OR, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_OR, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_XOR, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_XOR, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N) end
+                    `assignSignalsInst(`FUNCTIII_SLL, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SLL, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_SLT, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SLT, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_SLTU, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_SLTU, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_AND, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_AND, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_OR, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_OR, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_XOR, `BR_N, `OPI_DEFAULT, `OPII_DEFAULT, `ALU_XOR, `WB_ALU, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
                 endcase                
             end
                       
             `OPCODE_JAL: begin
-                `assignSignals(`BR_J, `OPI_DEFAULT, `OPII_IMM_UJTYPE, `ALU_X, `WB_PC, 1, 0, `M_X, `MT_X, `CSR_N)
+                `assignSignals(`BR_J, `OPI_DEFAULT, `OPII_IMM_UJTYPE, `ALU_X, `WB_PC, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0)
             end
 
             `OPCODE_JALR: begin
-                `assignSignals(`BR_JR, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_PC, 1, 0, `M_X, `MT_X, `CSR_N)
+                `assignSignals(`BR_JR, `OPI_DEFAULT, `OPII_IMM_ITYPE, `ALU_X, `WB_PC, 1, 0, `M_X, `MT_X, `CSR_N, `RC_0)
             end            
             //not yet tested 
             `OPCODE_BEQ_BNE_BGE_BGEU_BLT_BLTU: begin
                 case (funct3)
-                    `assignSignalsInst(`FUNCTIII_BEQ, `BR_EQ, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_BNE, `BR_NE, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_BGE, `BR_GE, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_BGEU, `BR_GE, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_BLT, `BR_LT, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N) end
-                    `assignSignalsInst(`FUNCTIII_BLTU, `BR_LTU, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N) end
+                    `assignSignalsInst(`FUNCTIII_BEQ, `BR_EQ, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_BNE, `BR_NE, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_BGE, `BR_GE, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_BGEU, `BR_GE, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_BLT, `BR_LT, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
+                    `assignSignalsInst(`FUNCTIII_BLTU, `BR_LTU, `OPI_DEFAULT, `OPII_IMM_SBTYPE, `ALU_X, `WB_X, 0, 0, `M_X, `MT_X, `CSR_N, `RC_0) end
                 endcase
             end            
             
             default: begin
-                `assignSignals(`BR_N, `OPI_PC, `OPII_IMM_UTYPE, `ALU_ADD, `WB_ALU, 0, 0, `M_X, `MT_X, `CSR_N)
+                `assignSignals(`BR_N, `OPI_PC, `OPII_IMM_UTYPE, `ALU_ADD, `WB_ALU, 0, 0, `M_X, `MT_X, `CSR_N, `RC_0)
             end
             
         endcase
@@ -208,5 +215,20 @@ module cpath(
         end
     end*/
     assign dmem_resp_valid = 1;
-    assign CtoD_full_stall = !((DtoC_exe_ctrl_dmem_val && dmem_resp_valid) || !DtoC_exe_ctrl_dmem_val);
+    assign CtoD_full_stall = !((DtoC_exe_ctrl_dmem_val && dmem_resp_valid) || !DtoC_exe_ctrl_dmem_val)
+                || (CtoD_exe_rc_cmd == `RC_1 || (CtoD_exe_rc_cmd == `RC_1 && !DtoC_exe_rc_done));
+     
+    always @(posedge clk) begin
+        if (rst_n == 0) begin
+            CtoD_exe_rc_cmd <= 0;
+        end else begin
+            if (DtoC_exe_rc_done) begin
+                CtoD_exe_rc_cmd <=`RC_0;
+            
+            end else if (!CtoD_dec_stall && !CtoD_full_stall && !CtoD_dec_kill && !CtoD_if_kill && rc_cmd)begin
+                CtoD_exe_rc_cmd <=`RC_1;
+            end                
+        end
+    end      
+     
 endmodule
