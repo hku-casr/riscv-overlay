@@ -10,7 +10,7 @@ The processor is generically implemented so as to promote design portability and
 
 `basic` consists of the RISCV core without the BAA and RPA instructions.
 
-if you want to use the RISCV core that supports the BAA and RPA instructions, please ignore the directory `basic`.
+If you want to use the RISCV core that supports the BAA and RPA instructions, please ignore the directory `basic`.
 
 ## Installation
 
