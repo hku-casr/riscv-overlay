@@ -2,7 +2,7 @@
 
 This soft processor is designed to be tightly-coupled with a custom coarse-grained architecture to become part of an FPGA overlay framework.
 
-RISC-V RV32I is chosen as the instruction set for its openness and portability, and the soft processor is designed as a 4-stage pipeline to minimize the resource consumption when implemented on FPGAs.
+RISC-V `RV32I` is chosen as the instruction set for its openness and portability, and the soft processor is designed as a 4-stage pipeline to minimize the resource consumption when implemented on FPGAs.
 
 The processor is generically implemented so as to promote design portability and compatibility across different FPGA platforms. Current implementations support Spartan-3 to Virtex-7 and Cyclone IV to V.
 
