@@ -12,6 +12,10 @@ The processor is generically implemented so as to promote design portability and
 
 If you want to use the RISCV core that supports the BAA and RPA instructions, please ignore the directory `basic`.
 
+You can refer to the details of the BAA and RPA instructions by visiting
+
+    http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6927421
+
 ## Installation
 
 You can specify the device, IMEM and DMEM size by executing `install.sh`
@@ -26,4 +30,4 @@ OR you can do it manually with the following steps:
 
 ## Synthesize
 
-You can synthesize the processor by first instantiating a new project in ISE or Quartus II and then placing all the files inside the project.
+You can synthesize the processor by first instantiating a new project in ISE or Quartus II. Depending on whether you need the BAA and RPA instructions, you can then place the files from either the `basic` or the files other than `basic` into the project.
