@@ -6,6 +6,10 @@ RISC-V `RV32I` is chosen as the instruction set for its openness and portability
 
 The processor is generically implemented so as to promote design portability and compatibility across different FPGA platforms. Current implementations support Spartan-3 to Virtex-7 and Cyclone IV to V.
 
+The detailed information about the soft processor can be found:
+
+    http://arxiv.org/pdf/1606.06483v1.pdf
+
 ## Directory
 
 `basic` consists of the RISCV core without the BAA and RPA instructions.
